@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">TrainingApp</string>
+    <string name="workout_tab_name">Workout</string>
+    <string name="feed_tab_name">Feed</string>
+    <string name="chat_tab_name">Chat</string>
+    <string name="profile_tab_name">Profile</string>
+</resources>
