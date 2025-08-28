@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-
 import androidx.navigation.compose.rememberNavController
 import com.singularity.trainingapp.core.navigation.ChatList
 import com.singularity.trainingapp.core.navigation.FeedHome
@@ -20,11 +19,10 @@ import com.singularity.trainingapp.core.navigation.TabChat
 import com.singularity.trainingapp.core.navigation.TabFeed
 import com.singularity.trainingapp.core.navigation.TabProfile
 import com.singularity.trainingapp.core.navigation.TabWorkout
-import com.singularity.trainingapp.core.navigation.WorkoutDetail
-import com.singularity.trainingapp.core.navigation.WorkoutList
 import com.singularity.trainingapp.core.ui.TestScreen
 import com.singularity.trainingapp.core.ui.TrainingBottomBarHost
-import com.singularity.trainingapp.features.workout.WorkoutListScreen
+import com.singularity.trainingapp.features.workout.WorkoutCalendarScreen
+import com.singularity.trainingapp.features.workout.fakeLoadDays
 import com.singularity.trainingapp.features.workout.workoutGraph
 import com.singularity.trainingapp.ui.theme.TrainingAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -50,9 +48,23 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         workoutGraph(navController)
+
                         navigation<TabFeed>(startDestination = FeedHome) {
-                            composable<FeedHome> { TestScreen("Feed list") }
+                            composable<FeedHome> {
+                                WorkoutCalendarScreen(
+                                    loadDays = { start, end ->
+                                        // тут дергаешь ViewModel
+                                        // например: viewModel.loadDays(start, end)
+                                        fakeLoadDays(start, end) // временный заглушечный
+                                    },
+                                    onWorkoutClick = { workout ->
+                                        // если надо перейти на экран детализации тренировки
+                                        navController.navigate("workout_detail/${workout.id}")
+                                    }
+                                )
+                            }
                         }
+
                         navigation<TabChat>(startDestination = ChatList) {
                             composable<ChatList> { TestScreen("Chats list") }
                         }

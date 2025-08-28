@@ -19,6 +19,9 @@ interface TabRoute : WorkoutAppRoute
 
 //Trainings
 @Serializable data object WorkoutList                                         : WorkoutAppRoute
+
+@Serializable
+data object ScheduleRoute : WorkoutAppRoute
 @Serializable data class WorkoutDetail(val id: String)                        : WorkoutAppRoute
 //some more screens for training to count exercises
 
