@@ -1,5 +1,6 @@
 package com.singularity.trainingapp.features.workout.schedule.ui.components.calendar
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
@@ -26,10 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.singularity.trainingapp.features.workout.schedule.data.DayMetadata
+import com.singularity.trainingapp.features.workout.schedule.data.DaysRange
 import com.singularity.trainingapp.features.workout.schedule.data.ScheduleIntent
 import com.singularity.trainingapp.features.workout.schedule.data.ScheduleState
-import com.singularity.trainingapp.features.workout.schedule.ui.components.calendar.utils.getMonth
-import com.singularity.trainingapp.features.workout.schedule.ui.components.calendar.utils.pageStart
+import com.singularity.trainingapp.features.workout.schedule.data.days
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 
@@ -43,12 +45,12 @@ fun WorkoutCalendar(
         initialPage = ScheduleState.BASE_PAGE,
         pageCount = { ScheduleState.PAGE_COUNT }
     )
-    val start = state.baseAnchorMonday
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }
             .collect { page -> onIntent(ScheduleIntent.PageChanged(page)) }
     }
+
 
     Column(
         modifier = modifier
@@ -62,10 +64,10 @@ fun WorkoutCalendar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(
-                modifier = Modifier.width(200.dp),
-                text = getMonth(start, state.currentPage, state.rows)
-            )
+//            Text(
+//                modifier = Modifier.width(200.dp),
+//                text = getMonth(start, state.currentPage, state.rows)
+//            )
             Row(
                 modifier = Modifier,
                 verticalAlignment = Alignment.CenterVertically,
@@ -79,11 +81,12 @@ fun WorkoutCalendar(
 
         CalendarPager(
             pagerState = pagerState,
-            currentDate = state.currentDate,
-            selectedDate = state.selectedDate,
-            onItemClicked = { onIntent(ScheduleIntent.SelectDate(it)) },
-            baseAnchorMonday = start,
             rows = state.rows,
+            selectedDate = state.selectedDate,
+            today = state.today,
+            window = state.window,
+            onDayClicked = { onIntent(ScheduleIntent.SelectDate(it)) },
+            anchorMonday = LocalDate.now().with(DayOfWeek.MONDAY),
         )
     }
 
@@ -91,23 +94,24 @@ fun WorkoutCalendar(
 
 @Composable
 fun CalendarPager(
+    modifier: Modifier = Modifier,
     pagerState: PagerState,
     rows: Int,
-    baseAnchorMonday: LocalDate,
-    currentDate: LocalDate,
     selectedDate: LocalDate,
-    onItemClicked: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier,
+    today: LocalDate,
+    window: Map<DaysRange, Map<LocalDate, DayMetadata>>,
+    onDayClicked: (LocalDate) -> Unit,
+    anchorMonday: LocalDate,
 ) {
     HorizontalPager(state = pagerState, modifier = modifier) { page ->
-
-        val start = remember(page, rows, baseAnchorMonday) {
-            pageStart(baseAnchorMonday, page, rows)
+        val range = remember(rows, page, anchorMonday) {
+            computePageRange(anchorMonday, page, rows)
         }
-        val dates = remember(start, rows) {
-            List(rows * 7) { i -> start.plusDays(i.toLong()) }
-        }
+        Log.d("PAGER", "${range.daysCount}")
+        Log.d("PAGER", "${window.size}")
+        val metaByDate = window[range]
 
+        val dates = range.days()
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             userScrollEnabled = false,
@@ -115,6 +119,7 @@ fun CalendarPager(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
         ) {
+
             items(7) { index ->
                 Box(
                     contentAlignment = Alignment.Center, modifier = Modifier
@@ -124,8 +129,9 @@ fun CalendarPager(
                     Text(days[index])
                 }
             }
-            items(dates.size) { index ->
-                val date = dates[index]
+            items(dates.size, key = { i -> dates[i].toEpochDay() }) { i ->
+                val date = dates[i]
+                //val dots = metaByDate[date]?.dots.orEmpty()
                 TextButton(
                     modifier = Modifier
                         .padding(6.dp)
@@ -134,20 +140,32 @@ fun CalendarPager(
                         .background(
                             when (date) {
                                 selectedDate -> Color.Blue
-                                currentDate -> Color.Black
+                                today -> Color.Black
                                 else -> Color.DarkGray
                             }
                         ),
-                    onClick = { onItemClicked(date) }
+                    onClick = {
+                        onDayClicked(date)
+                    }
                 ) {
                     Text(date.dayOfMonth.toString())
                 }
             }
+
         }
     }
 }
 
+fun computePageRange(anchorMonday: LocalDate, page: Int, rows: Int): DaysRange {
+    val delta = page - ScheduleState.BASE_PAGE
+    val start = anchorMonday.plusWeeks(delta.toLong() * rows)
+    val endExclusive = start.plusDays((rows * 7).toLong())
+    return DaysRange(start, endExclusive)
+}
 
+/*
+
+*/
 val days = listOf(
     "Mon",
     "Tue",
