@@ -21,8 +21,6 @@ import com.singularity.trainingapp.core.navigation.TabProfile
 import com.singularity.trainingapp.core.navigation.TabWorkout
 import com.singularity.trainingapp.core.ui.TestScreen
 import com.singularity.trainingapp.core.ui.TrainingBottomBarHost
-import com.singularity.trainingapp.features.workout.WorkoutCalendarScreen
-import com.singularity.trainingapp.features.workout.fakeLoadDays
 import com.singularity.trainingapp.features.workout.workoutGraph
 import com.singularity.trainingapp.ui.theme.TrainingAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,17 +49,7 @@ class MainActivity : ComponentActivity() {
 
                         navigation<TabFeed>(startDestination = FeedHome) {
                             composable<FeedHome> {
-                                WorkoutCalendarScreen(
-                                    loadDays = { start, end ->
-                                        // тут дергаешь ViewModel
-                                        // например: viewModel.loadDays(start, end)
-                                        fakeLoadDays(start, end) // временный заглушечный
-                                    },
-                                    onWorkoutClick = { workout ->
-                                        // если надо перейти на экран детализации тренировки
-                                        navController.navigate("workout_detail/${workout.id}")
-                                    }
-                                )
+                                TestScreen("Feed")
                             }
                         }
 

@@ -1,16 +1,20 @@
 package com.singularity.trainingapp.features.workout.schedule.ui.components.calendar
 
-import android.util.Log
+
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -19,21 +23,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.singularity.trainingapp.features.workout.schedule.data.DayMetadata
-import com.singularity.trainingapp.features.workout.schedule.data.DaysRange
-import com.singularity.trainingapp.features.workout.schedule.data.ScheduleIntent
-import com.singularity.trainingapp.features.workout.schedule.data.ScheduleState
-import com.singularity.trainingapp.features.workout.schedule.data.days
-import java.time.DayOfWeek
+import com.singularity.trainingapp.features.workout.schedule.ui.components.calendar.utils.days
+import com.singularity.trainingapp.features.workout.schedule.ui.state.PageSlice
+import com.singularity.trainingapp.features.workout.schedule.ui.state.ScheduleIntent
+import com.singularity.trainingapp.features.workout.schedule.ui.state.ScheduleState
+import kotlinx.coroutines.flow.distinctUntilChanged
 import java.time.LocalDate
-
 
 @Composable
 fun WorkoutCalendar(
@@ -48,7 +51,14 @@ fun WorkoutCalendar(
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }
+            .distinctUntilChanged()
             .collect { page -> onIntent(ScheduleIntent.PageChanged(page)) }
+    }
+
+    LaunchedEffect(state.currentPage) {
+        if (pagerState.currentPage != state.currentPage) {
+            pagerState.scrollToPage(state.currentPage)
+        }
     }
 
 
@@ -64,30 +74,33 @@ fun WorkoutCalendar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-//            Text(
-//                modifier = Modifier.width(200.dp),
-//                text = getMonth(start, state.currentPage, state.rows)
-//            )
+
+            Text(state.window[state.currentPage]?.title ?: "No Data")
             Row(
                 modifier = Modifier,
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = { onIntent(ScheduleIntent.ChangeRows(1)) }) { Text("1") }
-                TextButton(onClick = { onIntent(ScheduleIntent.ChangeRows(2)) }) { Text("2") }
-                TextButton(onClick = { onIntent(ScheduleIntent.ChangeRows(4)) }) { Text("4") }
-            }
-        }
+                listOf(1, 2, 4).forEach { r ->
+                    TextButton(
+                        onClick = { if (state.rows != r) onIntent(ScheduleIntent.ChangeRows(r)) },
+                        enabled = state.rows != r
+                    ) { Text("$r") }
+                }
 
+            }
+
+        }
         CalendarPager(
+            modifier = Modifier,
             pagerState = pagerState,
-            rows = state.rows,
-            selectedDate = state.selectedDate,
-            today = state.today,
             window = state.window,
-            onDayClicked = { onIntent(ScheduleIntent.SelectDate(it)) },
-            anchorMonday = LocalDate.now().with(DayOfWeek.MONDAY),
-        )
+            rows = state.rows,
+            today = state.today,
+            selectedDate = state.selectedDate,
+        ) {
+            onIntent(ScheduleIntent.SelectDate(it))
+        }
     }
 
 }
@@ -96,77 +109,125 @@ fun WorkoutCalendar(
 fun CalendarPager(
     modifier: Modifier = Modifier,
     pagerState: PagerState,
+    window: Map<Int, PageSlice>,
     rows: Int,
-    selectedDate: LocalDate,
     today: LocalDate,
-    window: Map<DaysRange, Map<LocalDate, DayMetadata>>,
-    onDayClicked: (LocalDate) -> Unit,
-    anchorMonday: LocalDate,
+    selectedDate: LocalDate,
+    onDayClick: (LocalDate) -> Unit,
 ) {
     HorizontalPager(state = pagerState, modifier = modifier) { page ->
-        val range = remember(rows, page, anchorMonday) {
-            computePageRange(anchorMonday, page, rows)
+        val slice = window[page]
+        CalendarPage(
+            slice = slice,               // null -> плейсхолдер/шиммер
+            rows = rows,
+            today = today,
+            selectedDate = selectedDate,
+            onDayClick = onDayClick
+        )
+    }
+}
+
+private val WeekdayHeaderHeight: Dp = 24.dp
+private val DayBadgeHeight: Dp = 40.dp
+private val DayCellHeight: Dp = 64.dp
+
+
+@Composable
+fun CalendarPage(
+    slice: PageSlice?,
+    rows: Int,
+    today: LocalDate,
+    selectedDate: LocalDate,
+    onDayClick: (LocalDate) -> Unit
+) {
+    if (slice == null) {
+        Text("Loading…")
+        return
+    }
+
+    val dates = slice.dates.days()
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(7),
+        userScrollEnabled = false,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(weekdays) { day ->
+            Box(
+                modifier = Modifier
+                    .padding(vertical = 6.dp)
+                    .height(WeekdayHeaderHeight),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = day, textAlign = TextAlign.Center)
+            }
         }
-        Log.d("PAGER", "${range.daysCount}")
-        Log.d("PAGER", "${window.size}")
-        val metaByDate = window[range]
+        items(dates) { date ->
+            val isSelected = date == selectedDate
+            val isToday = date == today
+            val meta = slice.dots[date]
 
-        val dates = range.days()
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            userScrollEnabled = false,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-        ) {
-
-            items(7) { index ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .height(DayCellHeight)
+                    .padding(vertical = 6.dp, horizontal = 0.dp)
+                    .clickable { onDayClick(date) }
+            ) {
+                val bg = when {
+                    isSelected -> Color(0xFF2962FF)
+                    isToday -> Color(0xFF263238)
+                    else -> Color.Transparent
+                }
                 Box(
-                    contentAlignment = Alignment.Center, modifier = Modifier
-                        .padding(4.dp)
-                        .size(40.dp)
-                ) {
-                    Text(days[index])
-                }
-            }
-            items(dates.size, key = { i -> dates[i].toEpochDay() }) { i ->
-                val date = dates[i]
-                //val dots = metaByDate[date]?.dots.orEmpty()
-                TextButton(
                     modifier = Modifier
-                        .padding(6.dp)
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(
-                            when (date) {
-                                selectedDate -> Color.Blue
-                                today -> Color.Black
-                                else -> Color.DarkGray
-                            }
-                        ),
-                    onClick = {
-                        onDayClicked(date)
-                    }
+                        .size(DayBadgeHeight)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(date.dayOfMonth.toString())
+                    Box(
+                        modifier = Modifier
+                            .size(DayBadgeHeight)
+                            .clip(CircleShape)
+                            .background(bg),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = date.dayOfMonth.toString(),
+                            modifier = Modifier
+                                .padding(horizontal = 10.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                }
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp)
+                ) {
+                    meta?.dots?.take(4)?.forEach { dot ->
+                        Canvas(
+                            modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                                .clip(CircleShape)
+                                .background(Color.Transparent)
+                                .padding(0.dp)
+                                .size(6.dp)
+                        ) {
+                            drawCircle(color = Color(dot.color))
+                        }
+                    }
                 }
             }
-
         }
     }
 }
 
-fun computePageRange(anchorMonday: LocalDate, page: Int, rows: Int): DaysRange {
-    val delta = page - ScheduleState.BASE_PAGE
-    val start = anchorMonday.plusWeeks(delta.toLong() * rows)
-    val endExclusive = start.plusDays((rows * 7).toLong())
-    return DaysRange(start, endExclusive)
-}
-
-/*
-
-*/
-val days = listOf(
+val weekdays = listOf(
     "Mon",
     "Tue",
     "Wed",

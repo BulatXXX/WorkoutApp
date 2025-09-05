@@ -1,4 +1,4 @@
-package com.singularity.trainingapp.features.workout.schedule.data
+package com.singularity.trainingapp.features.workout.schedule.ui.state
 
 import java.time.LocalDate
 

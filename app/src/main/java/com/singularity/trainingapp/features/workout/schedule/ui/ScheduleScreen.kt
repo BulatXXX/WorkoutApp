@@ -1,18 +1,14 @@
 package com.singularity.trainingapp.features.workout.schedule.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import com.singularity.trainingapp.features.workout.schedule.ui.components.calendar.WorkoutCalendar
+import com.singularity.trainingapp.features.workout.schedule.ui.state.ScheduleViewModel
 
 @Composable
 fun WorkoutScheduleScreen(modifier: Modifier = Modifier, viewModel: ScheduleViewModel) {
@@ -23,17 +19,20 @@ fun WorkoutScheduleScreen(modifier: Modifier = Modifier, viewModel: ScheduleView
         WorkoutCalendar(state = state) { intent ->
             viewModel.sendIntent(intent)
         }
-        WorkoutDayDetails()
+        Text("Current page: ${state.currentPage}")
+        Text("Rows: ${state.rows}")
+        Text("Selected: ${state.selectedDate}")
+        Text("Window size: ${state.window.size}")
     }
 }
 
-@Composable
-fun WorkoutDayDetails(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .background(Color.Red)
-            .fillMaxWidth()
-            .height(400.dp)
-    )
-}
+//@Composable
+//fun WorkoutDayDetails(modifier: Modifier = Modifier) {
+//    Box(
+//        modifier = modifier
+//            .background(Color.Red)
+//            .fillMaxWidth()
+//            .height(400.dp)
+//    )
+//}
 
