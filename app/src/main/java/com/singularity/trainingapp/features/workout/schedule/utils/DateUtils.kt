@@ -1,7 +1,7 @@
 // features/workout/schedule/ui/components/calendar/utils/DateUtils.kt
-package com.singularity.trainingapp.features.workout.schedule.ui.components.calendar.utils
+package com.singularity.trainingapp.features.workout.schedule.utils
 
-import com.singularity.trainingapp.features.workout.schedule.ui.state.DateRange
+import com.singularity.trainingapp.features.workout.schedule.ui.DateRange
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -36,6 +36,15 @@ fun monthTitle(range: DateRange, locale: Locale = Locale.getDefault()): String {
     val endMonth = last.month.getDisplayName(TextStyle.FULL_STANDALONE, locale)
     return if (first.month == last.month) capitalize(startMonth)
     else "${capitalize(startMonth)}–${capitalize(endMonth)}"
+}
+
+fun localizedWeekdays(
+    locale: Locale = Locale.getDefault(),
+    start: DayOfWeek = DayOfWeek.MONDAY
+): List<String> {
+    val days = DayOfWeek.entries
+    val shifted = days.drop(start.ordinal) + days.take(start.ordinal)
+    return shifted.map { it.getDisplayName(TextStyle.SHORT, locale) }
 }
 
 val DateRange.daysCount: Int

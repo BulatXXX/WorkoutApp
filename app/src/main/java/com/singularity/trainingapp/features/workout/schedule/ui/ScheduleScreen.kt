@@ -7,8 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.singularity.trainingapp.features.workout.schedule.ui.components.calendar.WorkoutCalendar
-import com.singularity.trainingapp.features.workout.schedule.ui.state.ScheduleViewModel
+import com.singularity.trainingapp.features.workout.schedule.ui.components.WorkoutCalendar
 
 @Composable
 fun WorkoutScheduleScreen(modifier: Modifier = Modifier, viewModel: ScheduleViewModel) {

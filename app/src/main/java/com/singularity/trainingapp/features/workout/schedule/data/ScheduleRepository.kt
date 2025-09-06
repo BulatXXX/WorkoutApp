@@ -1,8 +1,8 @@
 package com.singularity.trainingapp.features.workout.schedule.data
 
 import com.singularity.trainingapp.features.workout.schedule.domain.ScheduleRepository
-import com.singularity.trainingapp.features.workout.schedule.ui.state.DayMetadata
-import com.singularity.trainingapp.features.workout.schedule.ui.state.Dot
+import com.singularity.trainingapp.features.workout.schedule.ui.DayMetadata
+import com.singularity.trainingapp.features.workout.schedule.ui.Dot
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month

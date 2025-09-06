@@ -1,9 +1,10 @@
-package com.singularity.trainingapp.features.workout.schedule.ui.state
+package com.singularity.trainingapp.features.workout.schedule.ui
 
 import androidx.compose.runtime.Immutable
 import com.singularity.trainingapp.core.utils.LoadableState
 import java.time.LocalDate
 
+@Immutable
 data class Dot(val type: String, val color: Long)
 
 @Immutable

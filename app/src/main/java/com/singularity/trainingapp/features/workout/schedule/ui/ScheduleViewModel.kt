@@ -1,9 +1,10 @@
-package com.singularity.trainingapp.features.workout.schedule.ui.state
+package com.singularity.trainingapp.features.workout.schedule.ui
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.singularity.trainingapp.core.MVIViewModel
 import com.singularity.trainingapp.features.workout.schedule.domain.BuildCalendarWindowUseCase
+import com.singularity.trainingapp.features.workout.schedule.domain.DefaultCalendarPagingPolicy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -25,8 +26,19 @@ class ScheduleViewModel @Inject constructor(
 
     override fun handleIntent(intent: ScheduleIntent) = when (intent) {
         is ScheduleIntent.ChangeRows -> {
-            setState { uiState.value.copy(rows = intent.rows) }
-            buildWindowFor(centerPage = uiState.value.currentPage, rows = intent.rows)
+            val pagingPolicy = DefaultCalendarPagingPolicy()
+            val old = uiState.value
+            val newRows = intent.rows
+
+            val currentRange = pagingPolicy.pageRange(old.currentPage, old.rows)
+            val currentStartMonday = currentRange.startDate
+
+            val newPage = pagingPolicy.pageForStartMonday(currentStartMonday, newRows)
+
+
+            setState { uiState.value.copy(rows = newRows, isLoading = true, currentPage = newPage) }
+
+            buildWindowFor(centerPage = newPage, rows = newRows)
         }
 
         is ScheduleIntent.PageChanged -> {
@@ -66,4 +78,3 @@ class ScheduleViewModel @Inject constructor(
         }
     }
 }
-

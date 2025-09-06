@@ -1,9 +1,9 @@
 package com.singularity.trainingapp.features.workout.schedule.domain
 
-import com.singularity.trainingapp.features.workout.schedule.ui.components.calendar.utils.days
-import com.singularity.trainingapp.features.workout.schedule.ui.state.DateRange
-import com.singularity.trainingapp.features.workout.schedule.ui.state.DayMetadata
-import com.singularity.trainingapp.features.workout.schedule.ui.state.PageSlice
+import com.singularity.trainingapp.features.workout.schedule.ui.DateRange
+import com.singularity.trainingapp.features.workout.schedule.ui.DayMetadata
+import com.singularity.trainingapp.features.workout.schedule.ui.PageSlice
+import com.singularity.trainingapp.features.workout.schedule.utils.days
 import java.time.LocalDate
 import java.util.Locale
 
@@ -11,12 +11,7 @@ class BuildCalendarWindowUseCase(
     private val pagingPolicy: CalendarPagingPolicy,
     private val repository: ScheduleRepository
 ) {
-    /**
-     * Собирает окно страниц p±radius:
-     * - считает диапазоны страниц по policy,
-     * - запрашивает метаданные дней у репозитория,
-     * - маппит в Map<Int, PageSlice> для UI.
-     */
+
     suspend fun execute(
         centerPage: Int,
         rows: Int,
@@ -50,7 +45,6 @@ class BuildCalendarWindowUseCase(
         )
     }
 
-    /** Делает плотный срез метаданных по всем датам диапазона, подставляя пустые значения */
     private fun sliceDotsForRange(
         range: DateRange,
         metadataByDate: Map<LocalDate, DayMetadata>
