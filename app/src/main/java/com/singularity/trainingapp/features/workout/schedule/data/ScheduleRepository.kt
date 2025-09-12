@@ -29,7 +29,7 @@ class ScheduleRepositoryImpl @Inject constructor() : ScheduleRepository {
         if (date.dayOfWeek.value >= DayOfWeek.SATURDAY.value) dots += Dot(
             type = "mobility",
             color = 0xFF6D4C41
-        ) // коричневый
+        )
         return DayMetadata(dots)
     }
 
