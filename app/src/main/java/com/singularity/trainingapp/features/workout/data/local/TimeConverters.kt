@@ -1,4 +1,4 @@
-package com.singularity.trainingapp.features.workout.schedule.data.local
+package com.singularity.trainingapp.features.workout.data.local
 
 import androidx.room.TypeConverter
 import java.time.Instant

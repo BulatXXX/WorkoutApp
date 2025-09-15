@@ -1,8 +1,8 @@
-package com.singularity.trainingapp.features.workout.schedule.di
+package com.singularity.trainingapp.features.workout.di
 
 import android.content.Context
 import androidx.room.Room
-import com.singularity.trainingapp.features.workout.schedule.data.WorkoutDatabase
+import com.singularity.trainingapp.features.workout.data.WorkoutDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

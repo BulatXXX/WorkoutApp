@@ -1,4 +1,4 @@
-package com.singularity.trainingapp.features.workout.schedule.data.local.entities
+package com.singularity.trainingapp.features.workout.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

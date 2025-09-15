@@ -1,4 +1,4 @@
-package com.singularity.trainingapp.features.workout.schedule.data.local.entities
+package com.singularity.trainingapp.features.workout.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.Index
@@ -17,7 +17,7 @@ import java.time.Instant
 )
 data class Exercise(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
-    val remoteId: String?,
+    val remoteId: String? = null,
     val name: String,
     val description: String? = null,
 
