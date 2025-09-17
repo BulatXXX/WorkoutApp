@@ -6,11 +6,13 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import com.singularity.trainingapp.core.navigation.ExerciseCreateRoute
 import com.singularity.trainingapp.core.navigation.ExercisesListRoute
 import com.singularity.trainingapp.core.navigation.ScheduleRoute
 import com.singularity.trainingapp.core.navigation.TabWorkout
 import com.singularity.trainingapp.core.navigation.WorkoutDetail
 import com.singularity.trainingapp.core.ui.TestScreen
+import com.singularity.trainingapp.features.workout.exercises.ui.screens.ExerciseCreateScreen
 import com.singularity.trainingapp.features.workout.exercises.ui.screens.ExercisesListScreen
 import com.singularity.trainingapp.features.workout.schedule.ui.WorkoutScheduleScreen
 
@@ -31,6 +33,14 @@ fun NavGraphBuilder.workoutGraph(navController: NavController){
         composable<ExercisesListRoute> {
             ExercisesListScreen(
                 exerciseListViewModel = hiltViewModel()
+            ) {
+                navController.navigate(ExerciseCreateRoute)
+            }
+        }
+        composable<ExerciseCreateRoute> {
+            ExerciseCreateScreen(
+                exerciseCreateViewModel = hiltViewModel(),
+                onBack = { navController.popBackStack() }
             )
         }
     }

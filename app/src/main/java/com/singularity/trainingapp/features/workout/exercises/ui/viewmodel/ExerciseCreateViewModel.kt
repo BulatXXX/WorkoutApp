@@ -5,9 +5,11 @@ import com.singularity.trainingapp.core.MVIViewModel
 import com.singularity.trainingapp.core.utils.LoadableState
 import com.singularity.trainingapp.features.workout.data.local.entities.Exercise
 import com.singularity.trainingapp.features.workout.exercises.domain.ExerciseRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class ExerciseCreateViewModel @Inject constructor(private val exerciseRepository: ExerciseRepository) :
     MVIViewModel<ExerciseCreateIntent, ExerciseCreateState, Nothing>() {
     override fun setInitialState(): ExerciseCreateState = ExerciseCreateState()

@@ -16,11 +16,14 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,13 +34,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.singularity.trainingapp.core.ui.scaffold.FabConfig
+import com.singularity.trainingapp.core.ui.scaffold.LocalScaffoldStateController
+import com.singularity.trainingapp.core.ui.scaffold.TopBarConfig
+import com.singularity.trainingapp.core.ui.scaffold.TopBarStyle
 import com.singularity.trainingapp.features.workout.data.local.entities.Exercise
 import com.singularity.trainingapp.features.workout.exercises.ui.viewmodel.ExerciseListViewModel
 import com.singularity.trainingapp.features.workout.exercises.ui.viewmodel.ExercisesListState
 
 @Composable
-fun ExercisesListScreen(exerciseListViewModel: ExerciseListViewModel) {
+fun ExercisesListScreen(exerciseListViewModel: ExerciseListViewModel, onFabClick: () -> Unit) {
     val state = exerciseListViewModel.uiState.collectAsStateWithLifecycle()
+    val controller = LocalScaffoldStateController.current
+    LaunchedEffect("List Screen") {
+        controller.updateScaffold(
+            TopBarConfig(title = "List Screen", style = TopBarStyle.Small), FabConfig(
+                visible = true,
+                icon = Icons.Default.Add,
+                onClick = onFabClick
+            )
+        )
+    }
     ExerciseListScreenContent(state.value)
 }
 

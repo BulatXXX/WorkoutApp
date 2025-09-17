@@ -29,6 +29,9 @@ data object ScheduleRoute : WorkoutAppRoute
 @Serializable
 data object ExercisesListRoute : WorkoutAppRoute
 
+@Serializable
+data object ExerciseCreateRoute : WorkoutAppRoute
+
 //Feed (there will be posts of your friends with training results and stats)
 @Serializable data object FeedHome                                             : WorkoutAppRoute
 @Serializable data class FeedPost(val postId: String)                          : WorkoutAppRoute

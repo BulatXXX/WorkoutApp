@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,6 +23,10 @@ import com.singularity.trainingapp.core.navigation.TabProfile
 import com.singularity.trainingapp.core.navigation.TabWorkout
 import com.singularity.trainingapp.core.ui.TestScreen
 import com.singularity.trainingapp.core.ui.TrainingBottomBarHost
+import com.singularity.trainingapp.core.ui.scaffold.FabHost
+import com.singularity.trainingapp.core.ui.scaffold.LocalScaffoldStateController
+import com.singularity.trainingapp.core.ui.scaffold.ScaffoldStateController
+import com.singularity.trainingapp.core.ui.scaffold.TopBarHost
 import com.singularity.trainingapp.features.workout.workoutGraph
 import com.singularity.trainingapp.ui.theme.TrainingAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,32 +40,37 @@ class MainActivity : ComponentActivity() {
         setContent {
             TrainingAppTheme {
                 val navController = rememberNavController()
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        TrainingBottomBarHost(navController)
-                    }
-                ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = TabWorkout,
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        workoutGraph(navController)
+                val scaffoldController = remember { ScaffoldStateController() }
+                CompositionLocalProvider(LocalScaffoldStateController provides scaffoldController) {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        topBar = { TopBarHost(scaffoldController.topBar) },
+                        bottomBar = {
+                            TrainingBottomBarHost(navController)
+                        },
+                        floatingActionButton = { FabHost(scaffoldController.fab) }
+                    ) { innerPadding ->
+                        NavHost(
+                            navController = navController,
+                            startDestination = TabWorkout,
+                            modifier = Modifier.padding(innerPadding)
+                        ) {
+                            workoutGraph(navController)
 
-                        navigation<TabFeed>(startDestination = FeedHome) {
-                            composable<FeedHome> {
-                                TestScreen("Feed")
+                            navigation<TabFeed>(startDestination = FeedHome) {
+                                composable<FeedHome> {
+                                    TestScreen("Feed")
+                                }
                             }
-                        }
 
-                        navigation<TabChat>(startDestination = ChatList) {
-                            composable<ChatList> { TestScreen("Chats list") }
-                        }
-                        navigation<TabProfile>(startDestination = ProfileMe) {
-                            composable<ProfileMe> { TestScreen("Profile") }
-                        }
+                            navigation<TabChat>(startDestination = ChatList) {
+                                composable<ChatList> { TestScreen("Chats list") }
+                            }
+                            navigation<TabProfile>(startDestination = ProfileMe) {
+                                composable<ProfileMe> { TestScreen("Profile") }
+                            }
 
+                        }
                     }
                 }
             }
