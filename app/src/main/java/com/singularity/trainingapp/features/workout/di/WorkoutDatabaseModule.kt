@@ -3,6 +3,7 @@ package com.singularity.trainingapp.features.workout.di
 import android.content.Context
 import androidx.room.Room
 import com.singularity.trainingapp.features.workout.data.WorkoutDatabase
+import com.singularity.trainingapp.features.workout.data.local.dao.ExerciseDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,4 +25,7 @@ object WorkoutDbModule {
             WorkoutDatabase::class.java,
             "workout.db"
         ).build()
+
+    @Provides
+    fun provideExerciseDao(db: WorkoutDatabase): ExerciseDao = db.exerciseDao()
 }

@@ -10,7 +10,6 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-
 abstract class ExerciseModule {
     @Binds
     @Singleton

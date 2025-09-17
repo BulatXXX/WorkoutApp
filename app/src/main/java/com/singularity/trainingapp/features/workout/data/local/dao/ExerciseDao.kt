@@ -36,7 +36,7 @@ interface ExerciseDao {
     suspend fun upsertAll(items: List<Exercise>)
 
     //DELETE
-    @Query("DELETE FROM exercises WHERE id = :id LIMIT 1")
+    @Query("DELETE FROM exercises WHERE id = :id")
     suspend fun deleteById(id: Long)
 
     @Query("DELETE FROM exercises WHERE remoteId = :remoteId")
